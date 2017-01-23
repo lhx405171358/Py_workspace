@@ -3,7 +3,6 @@ tableData = [['apples', 'oranges', 'cherries', 'banana'],
 ['dogs', 'cats', 'moose', 'goose']]
 
 
-
 def printTable(tableData):
     colWidths = [0] * len(tableData)
     index = 0
