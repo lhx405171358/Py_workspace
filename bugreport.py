@@ -76,7 +76,12 @@ for bugs in allBugsList:
     # pprint.pprint(bugs)
 
 # TODO:存储信息到excel文件
+print("Save to excel file...")
+wb = openpyxl.load_workbook('bugreport.xlsx')
+sheetNames = wb.get_sheet_names()
 
-
-
+for i in range(1, len(sheetNames)):
+    ws = wb.get_sheet_by_name(sheetNames[i])
+    for row in ws.rows:
+        #todo 添加bug信息
 # TODO:发送邮件
