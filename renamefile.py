@@ -6,13 +6,13 @@ if len(sys.argv) == 2:
 else:
     workdir = r'F:\bugs\screenshot'
 print('Change dir to', workdir)
-
 os.chdir(workdir)
+
 for filename in os.listdir("."):
     suffix = os.path.splitext(filename)[-1] #取得后缀
     if suffix == '.png' or suffix == '.jpg':
-        timeStamp = os.path.getctime(filename) #取得文件创建时间
-        timeArray = time.localtime(timeStamp)
+        timeStamp = os.path.getctime(filename) #取得文件创建时间戳
+        timeArray = time.localtime(timeStamp)  #时间戳转换为时间数组
         formatTime = time.strftime("%Y-%m-%d-%H%M%S", timeArray) #间时间格式转换
         shutil.move(filename,formatTime + suffix)
         print("rename %s to %s" % (filename, formatTime + suffix))
