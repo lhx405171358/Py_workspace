@@ -1,17 +1,22 @@
 #! python3
 # coding: UTF-8
 
-import requests,os,bs4,openpyxl,sys,time,pprint
-from openpyxl.styles import Font, NamedStyle
+import requests,os,bs4,openpyxl,sys,time
+import sendreport
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.application import MIMEApplication
 
-#new: http://192.168.9.11/buglist.cgi?chfield=%5BBug%20creation%5D&chfieldfrom=2017-02-01&chfieldto=Now&product=GCE
-#resovled: http://192.168.9.11/buglist.cgi?bug_status=RESOLVED&chfield=%5BBug%20creation%5D&chfieldfrom=2017-02-01&chfieldto=Now&product=GCE
-#closed: http://192.168.9.11/buglist.cgi?bug_status=CLOSE&chfield=%5BBug%20creation%5D&chfieldfrom=2017-02-01&chfieldto=Now&product=GCE
-#remain： http://192.168.9.11/buglist.cgi?bug_status=UNCONFIRMED&bug_status=CONFIRMED&bug_status=IN_PROGRESS&bug_status=REOPEN&product=GCE
+
+EMAIL_USER = "laihouxin@ghostcloud.cn"
+EMAIL_TO = "qiaorong@ghostcloud.cn"
+EMAIL_CC = "all-dev@ghostcloud.cn"
+REPORT_PATH = r"F:\bugs\reports"
+
+ONEDAYSECONDS = 3600*24
 
 # TODO:读取日期参数
 today = time.time()
-ONEDAYSECONDS = 3600*24
 
 if len(sys.argv) > 1:
     try:
@@ -27,15 +32,16 @@ else:
     fiveDaysAgo =  today - 5 * ONEDAYSECONDS
     fiveDaysAgoFormatTime = time.strftime("%Y-%m-%d", time.localtime(fiveDaysAgo))
     dateFrom = fiveDaysAgoFormatTime
-    dateTo = "Now"
+    dateTo =  time.strftime("%Y-%m-%d", time.localtime(today))
 print("DATE:%s to %s" % (dateFrom, dateTo))
+
 # TODO:爬取bugzilla上bug信息
 # 四种搜索bug URL
 newBugsURL = 'http://192.168.9.11/buglist.cgi?chfield=%5BBug%20creation%5D&product=GCE' + '&chfieldfrom=' + dateFrom + '&chfieldto=' + dateTo
 resolvedBugsURL = 'http://192.168.9.11/buglist.cgi?bug_status=RESOLVED&product=GCE'+ '&chfieldfrom=' + dateFrom + '&chfieldto=' + dateTo
-closedBugsURL = 'http://192.168.9.11/buglist.cgi?bug_status=CLOSE&product=GCE'+ '&chfieldfrom=' + dateFrom + '&chfieldto=' + dateTo
-remainBugsURL = 'http://192.168.9.11/buglist.cgi?bug_status=UNCONFIRMED&bug_status=CONFIRMED&bug_status=IN_PROGRESS&bug_status=REOPEN&product=GCE'
-bugsURL = [newBugsURL, resolvedBugsURL, closedBugsURL, remainBugsURL]
+verifiedBugsURL = 'http://192.168.9.11/buglist.cgi?bug_status=CLOSE&product=GCE'+ '&chfieldfrom=' + dateFrom + '&chfieldto=' + dateTo
+openBugsURL = 'http://192.168.9.11/buglist.cgi?bug_status=UNCONFIRMED&bug_status=CONFIRMED&bug_status=IN_PROGRESS&bug_status=REOPEN&product=GCE'
+bugsURL = [newBugsURL, resolvedBugsURL, verifiedBugsURL, openBugsURL]
 # bugsURL = [newBugsURL]
 
 #四种bug字典存入一个list，方便迭代
@@ -58,7 +64,6 @@ for bugs in allBugsList:
     res = requests.get(bugs['url'], proxies = proxies)
     res.raise_for_status()
     print('Get succeed')
-
     #提取出所有bug信息
     print('Extract all bugs info...')
     soup = bs4.BeautifulSoup(res.text,"html.parser")
@@ -73,15 +78,75 @@ for bugs in allBugsList:
         bugs['bug_info'].append(bugsList)
     bugs.setdefault('sum', len(bugs['bug_info']))
     print('Done, sum: %s bugs'%bugs['sum'])
-    # pprint.pprint(bugs)
 
 # TODO:存储信息到excel文件
 print("Save to excel file...")
-wb = openpyxl.load_workbook('bugreport.xlsx')
+wb = openpyxl.load_workbook(os.path.join(REPORT_PATH, 'bugreport.xlsx'))
 sheetNames = wb.get_sheet_names()
+ws = wb.get_sheet_by_name('Summary')
+ws['b2'] = dateFrom + ' to ' + dateTo
+for i in range(len(allBugsList)):
+    ws = wb.get_sheet_by_name(sheetNames[i + 1])
+    for irow in range(len(allBugsList[i]['bug_info'])):
+        ws.append(allBugsList[i]['bug_info'][irow])
+    print('write %s bugs info to %s' % (len(allBugsList[i]['bug_info']), ws.title))
 
-for i in range(1, len(sheetNames)):
-    ws = wb.get_sheet_by_name(sheetNames[i])
-    for row in ws.rows:
-        #todo 添加bug信息
+#以bugreport_YYYYMMDD-YYYYMMDD.xlsx形式保存
+targetFilename = REPORT_PATH + '\\' + 'bugreport_'+ dateFrom.replace('-', '')+'-'+dateTo.replace('-', '')+'.xlsx'
+print('save to ' + targetFilename)
+wb.save(targetFilename)
+
+if input("Input 'Y' to  send email") != "Y":
+    sys.exit(0)
+
 # TODO:发送邮件
+# 如名字所示Multipart就是分多个部分
+print("Send email...")
+wb2 = openpyxl.load_workbook(targetFilename, data_only = True)
+ws2 = wb2.get_sheet_by_name("Summary")
+numNew = len(allBugsList[0]['bug_info'])
+numResolved = len(allBugsList[1]['bug_info'])
+numVerified = len(allBugsList[2]['bug_info'])
+numOpen  = len(allBugsList[3]['bug_info'])
+
+msg = MIMEMultipart()
+msg["Subject"] = dateFrom + ' to ' + dateTo + ' Bug report'
+msg["From"] = EMAIL_USER
+msg["To"] = EMAIL_TO
+msg["Cc"] = EMAIL_CC
+
+# ---这是文字部分---
+emailContent = '''
+<p>BUG概览如下，详细统计情况见附件:</p>
+<table border="1" cellspacing="0" cellpadding="2"  width="400">
+      <tr  bgcolor="#1f4e78" align="center" >
+          <th colspan='2'><font color="#fff">bug统计</font></th>
+      </tr>
+      <tr bgcolor="#fff" align="left" >
+          <td bgcolor="#a6a6a6" ><b>时间</b></td><td>%s</td>
+      </tr>
+      <tr bgcolor="#fff" align="left" >
+          <td bgcolor="#a6a6a6" ><b>新增</b></td><td>%s</td>
+      </tr>
+      <tr bgcolor="#fff" align="left" >
+          <td bgcolor="#a6a6a6" ><b>已解决待验证</b></td><td>%s</td>
+      </tr>
+      <tr bgcolor="#fff" align="left" >
+          <td bgcolor="#a6a6a6" ><b>已验证</b></td><td>%s</td>
+      </tr>
+      <tr bgcolor="#fff" align="left" >
+          <td bgcolor="#a6a6a6" ><b>待解决</b></td><td>%s</td>
+      </tr>
+  </table>
+'''% (dateFrom+" To "+dateTo, numNew, numResolved, numVerified, numOpen)
+
+part = MIMEText(emailContent, 'html', 'utf-8')
+msg.attach(part)
+
+# ---这是附件部分---
+# xlsx类型附件
+part = MIMEApplication(open(targetFilename, 'rb').read())
+part.add_header('Content-Disposition', 'attachment', filename=os.path.basename(targetFilename))
+msg.attach(part)
+
+sendreport.send_email(EMAIL_USER, ','.join([EMAIL_TO, EMAIL_CC]), msg)
