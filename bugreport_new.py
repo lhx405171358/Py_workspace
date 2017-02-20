@@ -1,13 +1,14 @@
 #! python3
 # coding: UTF-8
 
-import requests,os,bs4,openpyxl,sys,time
+import os,openpyxl,sys,time,bugzilla
 import sendreport
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
+#利用python-bugzilla库重写下，不用慢慢爬信息了···
 
-
+URL = "http://192.168.9.11"
 EMAIL_USER = "laihouxin@ghostcloud.cn"
 EMAIL_TO = "qiaorong@ghostcloud.cn"
 EMAIL_CC = "all-dev@ghostcloud.cn"
@@ -36,48 +37,53 @@ else:
 print("DATE:%s to %s" % (dateFrom, dateTo))
 
 # TODO:爬取bugzilla上bug信息
-# 四种搜索bug URL
-newBugsURL = 'http://192.168.9.11/buglist.cgi?chfield=%5BBug%20creation%5D&product=GCE' + '&chfieldfrom=' + dateFrom + '&chfieldto=' + dateTo
-resolvedBugsURL = 'http://192.168.9.11/buglist.cgi?bug_status=RESOLVED&product=GCE'+ '&chfieldfrom=' + dateFrom + '&chfieldto=' + dateTo
-verifiedBugsURL = 'http://192.168.9.11/buglist.cgi?bug_status=CLOSE&product=GCE'+ '&chfieldfrom=' + dateFrom + '&chfieldto=' + dateTo
-openBugsURL = 'http://192.168.9.11/buglist.cgi?bug_status=UNCONFIRMED&bug_status=CONFIRMED&bug_status=IN_PROGRESS&bug_status=REOPEN&product=GCE'
-bugsURL = [newBugsURL, resolvedBugsURL, verifiedBugsURL, openBugsURL]
-# bugsURL = [newBugsURL]
 
-#四种bug字典存入一个list，方便迭代
-allBugsList = []
-for i in range(len(bugsURL)):
-    bugs = {}
-    bugs.setdefault('url', bugsURL[i])
-    bugs.setdefault('bug_info', [])
-    allBugsList.append(bugs)
+bzapi = bugzilla.Bugzilla(URL)
 
-#不使用代理，防止出现502
-# proxies = {
-#     "http": None,
-#     "https": None,
-# }
+newQuery = bzapi.build_query(
+    product="GCE"
+)
+resolvedQuery = bzapi.build_query(
+    product="GCE",
+    status="RESOLVED"
+)
+verifiedQuery = bzapi.build_query(
+    product="GCE",
+    status="CLOSE"
+)
+openQuery = bzapi.build_query(
+    product="GCE",
+    status=['UNCONFIRMED', 'CONFIRMED', 'IN_PROGRESS', 'REOPEN']
+)
 
-#分别开始提取每个url中的bug
-for bugs in allBugsList:
-    print('Get %s ...'% bugs['url'])
-    res = requests.get(bugs['url'])
-    res.raise_for_status()
-    print('Get succeed')
-    #提取出所有bug信息
-    print('Extract all bugs info...')
-    soup = bs4.BeautifulSoup(res.text,"html.parser")
-    bugInfos = soup.select('tr[id]')
-    #遍历所有bug信息，将bug信息条目存入一个list，在将此list添加到对应字典中
-    for bugInfo in bugInfos:
-        bugsList = []
-        for bugInfoItem in bugInfo.select('td'):
-            bugInfoItemStr = bugInfoItem.get_text().replace('\n', '').strip()
-            bugsList.append(bugInfoItemStr)
-        print('Get bug%s'% bugsList[0])
-        bugs['bug_info'].append(bugsList)
-    bugs.setdefault('sum', len(bugs['bug_info']))
-    print('Done, sum: %s bugs'%bugs['sum'])
+#get new bugs
+newQuery['creation_time'] = dateFrom
+newBugsFrom = bzapi.query(newQuery)
+newQuery['creation_time'] = dateTo
+newBugsTo = bzapi.query(newQuery)
+newBugs = newBugsFrom[0:len(newBugsFrom)-len(newBugsTo)]
+print('Get %s new bugs' % len(newBugs))
+
+#get resolved bugs
+resolvedQuery['last_change_time'] = dateFrom
+resolvedBugsFrom = bzapi.query(resolvedQuery)
+resolvedQuery['last_change_time'] = dateTo
+resolvedBugsTo = bzapi.query(resolvedQuery)
+resolvedBugs = resolvedBugsFrom[0:len(resolvedBugsFrom)-len(resolvedBugsTo)]
+print('Get %s resolved bugs' % len(resolvedBugs))
+
+#get Verified bugs
+verifiedQuery['last_change_time'] = dateFrom
+verifiedBugsFrom = bzapi.query(verifiedQuery)
+verifiedQuery['last_change_time'] = dateTo
+verifiedBugsTo = bzapi.query(verifiedQuery)
+verifiedBugs = verifiedBugsFrom[0:len(verifiedBugsFrom)-len(verifiedBugsTo)]
+print('Get %s verified bugs' % len(verifiedBugs))
+#get Open bugs
+openBugs = bzapi.query(openQuery)
+print('Get %s open bugs' % len(openBugs))
+
+allBugsList = [newBugs, resolvedBugs, verifiedBugs, openBugs]
 
 # TODO:存储信息到excel文件
 print("Save to excel file...")
@@ -87,27 +93,33 @@ ws = wb.get_sheet_by_name('Summary')
 ws['b2'] = dateFrom + ' to ' + dateTo
 for i in range(len(allBugsList)):
     ws = wb.get_sheet_by_name(sheetNames[i + 1])
-    for irow in range(len(allBugsList[i]['bug_info'])):
-        ws.append(allBugsList[i]['bug_info'][irow])
-    print('write %s bugs info to %s' % (len(allBugsList[i]['bug_info']), ws.title))
+    for irow in range(len(allBugsList[i])):
+        print('Save bug%s ...' % (allBugsList[i][irow].id))
+        ws.cell(row=irow + 3, column=1).value = allBugsList[i][irow].id
+        ws.cell(row=irow + 3, column=2).value = allBugsList[i][irow].component
+        ws.cell(row=irow + 3, column=3).value = allBugsList[i][irow].summary
+        ws.cell(row=irow + 3, column=4).value = allBugsList[i][irow].assigned_to
+        ws.cell(row=irow + 3, column=5).value = allBugsList[i][irow].severity
+        ws.cell(row=irow + 3, column=6).value = allBugsList[i][irow].status
+        ws.cell(row=irow + 3, column=7).value = allBugsList[i][irow].creator
+        ws.cell(row=irow + 3, column=8).value = str(allBugsList[i][irow].last_change_time)
+    print('Write %s bugs info to %s sheet' % (len(allBugsList[i]), ws.title))
 
 #以bugreport_YYYYMMDD-YYYYMMDD.xlsx形式保存
 targetFilename = REPORT_PATH + '\\' + 'bugreport_'+ dateFrom.replace('-', '')+'-'+dateTo.replace('-', '')+'.xlsx'
 print('save to ' + targetFilename)
 wb.save(targetFilename)
 
-if input("Input 'Y' to  send email") != "Y":
+if input("From %s to %s , cc %s\nInput 'Y' to  send email"  % (EMAIL_USER, EMAIL_TO, EMAIL_CC)) != "Y":
     sys.exit(0)
 
 # TODO:发送邮件
 # 如名字所示Multipart就是分多个部分
 print("Send email...")
-wb2 = openpyxl.load_workbook(targetFilename, data_only = True)
-ws2 = wb2.get_sheet_by_name("Summary")
-numNew = len(allBugsList[0]['bug_info'])
-numResolved = len(allBugsList[1]['bug_info'])
-numVerified = len(allBugsList[2]['bug_info'])
-numOpen  = len(allBugsList[3]['bug_info'])
+numNew = len(allBugsList[0])
+numResolved = len(allBugsList[1])
+numVerified = len(allBugsList[2])
+numOpen  = len(allBugsList[3])
 
 msg = MIMEMultipart()
 msg["Subject"] = dateFrom + ' to ' + dateTo + ' Bug report'
