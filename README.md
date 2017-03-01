@@ -7,6 +7,15 @@
 - bugreport_new使用了python-bugzilla直接获取bug信息
 
 ### 使用
+- 直接在.py文件里面填写对应项：
+```angular2html
+EMAIL_USER = "xxx@example.com"
+EMAIL_TO = "receiver@example.com"
+EMAIL_CC = "all-dev@example.com"
+REPORT_PATH = r"F:\bugs\reports"
+BUGZILLA_URL = 'http://192.168.9.11/'
+```
+- 把bugreport.xlsx放到REPORT_PATH下
 - 把/pyscript目录加到path中
 - 直接在cmd中输入bugreport使用
  
@@ -22,6 +31,15 @@ dateto格式: YYYY-MM-DD
 自动找到给定路径下最新的report文件并发送
 
 ### 使用
+- 直接在.py文件里面填写对应项：
+```angular2html
+_user = "xxx@example.com"
+_pwd = "xxxxxxx"
+_to = "receiver@example.com"
+_cc = "receiver@example.com"
+_report_path = r'F:\bugs\reports'
+```
+
 - 把/pyscript目录加到path中
 - 直接在cmd中输入sendreport使用
 
