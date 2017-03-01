@@ -8,7 +8,7 @@ from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 #利用python-bugzilla库重写下，不用慢慢爬信息了···
 
-URL = "http://192.168.9.11"
+BUGZILLA_URL = "http://192.168.9.11"
 EMAIL_USER = "laihouxin@ghostcloud.cn"
 EMAIL_TO = "qiaorong@ghostcloud.cn"
 EMAIL_CC = "all-dev@ghostcloud.cn"
@@ -38,7 +38,7 @@ print("DATE:%s to %s" % (dateFrom, dateTo))
 
 # TODO:爬取bugzilla上bug信息
 
-bzapi = bugzilla.Bugzilla(URL)
+bzapi = bugzilla.Bugzilla(BUGZILLA_URL)
 
 newQuery = bzapi.build_query(
     product="GCE"

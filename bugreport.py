@@ -12,6 +12,7 @@ EMAIL_USER = "laihouxin@ghostcloud.cn"
 EMAIL_TO = "qiaorong@ghostcloud.cn"
 EMAIL_CC = "all-dev@ghostcloud.cn"
 REPORT_PATH = r"F:\bugs\reports"
+BUGZILLA_URL = 'http://192.168.9.11/'
 
 ONEDAYSECONDS = 3600*24
 
@@ -37,10 +38,10 @@ print("DATE:%s to %s" % (dateFrom, dateTo))
 
 # TODO:爬取bugzilla上bug信息
 # 四种搜索bug URL
-newBugsURL = 'http://192.168.9.11/buglist.cgi?chfield=%5BBug%20creation%5D&product=GCE' + '&chfieldfrom=' + dateFrom + '&chfieldto=' + dateTo
-resolvedBugsURL = 'http://192.168.9.11/buglist.cgi?bug_status=RESOLVED&product=GCE'+ '&chfieldfrom=' + dateFrom + '&chfieldto=' + dateTo
-verifiedBugsURL = 'http://192.168.9.11/buglist.cgi?bug_status=CLOSE&product=GCE'+ '&chfieldfrom=' + dateFrom + '&chfieldto=' + dateTo
-openBugsURL = 'http://192.168.9.11/buglist.cgi?bug_status=UNCONFIRMED&bug_status=CONFIRMED&bug_status=IN_PROGRESS&bug_status=REOPEN&product=GCE'
+newBugsURL = BUGZILLA_URL+'buglist.cgi?chfield=%5BBug%20creation%5D&product=GCE' + '&chfieldfrom=' + dateFrom + '&chfieldto=' + dateTo
+resolvedBugsURL = BUGZILLA_URL+'buglist.cgi?bug_status=RESOLVED&product=GCE'+ '&chfieldfrom=' + dateFrom + '&chfieldto=' + dateTo
+verifiedBugsURL = BUGZILLA_URL+'buglist.cgi?bug_status=CLOSE&product=GCE'+ '&chfieldfrom=' + dateFrom + '&chfieldto=' + dateTo
+openBugsURL = BUGZILLA_URL+'buglist.cgi?bug_status=UNCONFIRMED&bug_status=CONFIRMED&bug_status=IN_PROGRESS&bug_status=REOPEN&product=GCE'
 bugsURL = [newBugsURL, resolvedBugsURL, verifiedBugsURL, openBugsURL]
 # bugsURL = [newBugsURL]
 

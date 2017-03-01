@@ -1,1 +1,8 @@
 /.idea/
+__pycache__/
+debuggame.py
+emailtest.py
+pyscript/mcb.bat
+pyscript/pw.bat
+test.html
+testiter.py
