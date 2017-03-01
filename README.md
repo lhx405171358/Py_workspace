@@ -5,6 +5,7 @@
 两个脚本区别在于实现方式不同：
 - bugreport是直接使用requests和beautifulsoup抓取bug信息
 - bugreport_new使用了python-bugzilla直接获取bug信息
+
 ### 使用
 - 把/pyscript目录加到path中
 - 直接在cmd中输入bugreport使用
@@ -19,6 +20,7 @@ dateto格式: YYYY-MM-DD
 ## sendreport
 ### 功能
 自动找到给定路径下最新的report文件并发送
+
 ### 使用
 - 把/pyscript目录加到path中
 - 直接在cmd中输入sendreport使用
