@@ -1,4 +1,6 @@
-/.idea/
+
+.gitignore
+.idea/
 __pycache__/
 debuggame.py
 emailtest.py
