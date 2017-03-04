@@ -10,8 +10,8 @@ from email.mime.application import MIMEApplication
 
 BUGZILLA_URL = "http://192.168.9.11"
 EMAIL_USER = "laihouxin@ghostcloud.cn"
-EMAIL_TO = "qiaorong@ghostcloud.cn"
-EMAIL_CC = "all-dev@ghostcloud.cn"
+EMAIL_TO = "laihouxin@ghostcloud.cn"
+EMAIL_CC = "laihouxin@ghostcloud.cn"
 REPORT_PATH = r"F:\bugs\reports"
 
 ONEDAYSECONDS = 3600*24
@@ -65,11 +65,13 @@ newBugs = newBugsFrom[0:len(newBugsFrom)-len(newBugsTo)]
 print('Get %s new bugs' % len(newBugs))
 
 #get resolved bugs
-resolvedQuery['last_change_time'] = dateFrom
-resolvedBugsFrom = bzapi.query(resolvedQuery)
-resolvedQuery['last_change_time'] = dateTo
-resolvedBugsTo = bzapi.query(resolvedQuery)
-resolvedBugs = resolvedBugsFrom[0:len(resolvedBugsFrom)-len(resolvedBugsTo)]
+# 下面这段注释主要用来取得dateFrom-dateTo这段时间内的resolved bugs
+# resolvedQuery['last_change_time'] = dateFrom
+# resolvedBugsFrom = bzapi.query(resolvedQuery)
+# resolvedQuery['last_change_time'] = dateTo
+# resolvedBugsTo = bzapi.query(resolvedQuery)
+# resolvedBugs = resolvedBugsFrom[0:len(resolvedBugsFrom)-len(resolvedBugsTo)]
+resolvedBugs = bzapi.query(resolvedQuery)
 print('Get %s resolved bugs' % len(resolvedBugs))
 
 #get Verified bugs
@@ -110,8 +112,7 @@ targetFilename = REPORT_PATH + '\\' + 'bugreport_'+ dateFrom.replace('-', '')+'-
 print('save to ' + targetFilename)
 wb.save(targetFilename)
 
-if input("From %s to %s , cc %s\nInput 'Y' to  send email"  % (EMAIL_USER, EMAIL_TO, EMAIL_CC)) != "Y":
-    sys.exit(0)
+
 
 # TODO:发送邮件
 # 如名字所示Multipart就是分多个部分
@@ -126,6 +127,8 @@ msg["Subject"] = dateFrom + ' to ' + dateTo + ' Bug report'
 msg["From"] = EMAIL_USER
 msg["To"] = EMAIL_TO
 msg["Cc"] = EMAIL_CC
+
+
 
 # ---这是文字部分---
 emailContent = '''
@@ -152,6 +155,167 @@ emailContent = '''
   </table>
 '''% (dateFrom+" To "+dateTo, numNew, numResolved, numVerified, numOpen)
 
+def add_buginfo_to_email(bugs):
+    global emailContent
+    emailContent +=   '''
+        <table border="1" cellspacing="0" cellpadding="2"  width="100%">
+        <tbody>
+        <tr>
+          <th colspan="1" >ID</th>
+          <th colspan="1">Product</th>
+          <th colspan="1">Comp</th>
+          <th colspan="1">Assignee</th>
+          <th colspan="1">Status</th>
+          <th colspan="1">Resolution</th>
+          <th colspan="1">Summary</th>
+          <th colspan="1">Changed</th>
+        </tr>
+        '''
+    for bug in bugs:
+        emailContent = emailContent + '''
+        <tr>
+        <td>
+          <a href="%s">%s</a>
+        </td>
+        <td style="white-space: nowrap">
+            <span>%s</span>
+        </td>
+        <td style="white-space: nowrap" >
+            <span>%s</span>
+        </td>
+        <td style="white-space: nowrap" >
+            <span>%s</span>
+        </td>
+        <td style="white-space: nowrap">
+            <span title="RESOLVED">%s</span>
+        </td>
+        <td style="white-space: nowrap" >
+            <span title="FIXED">%s</span>
+        </td>
+        <td>
+            <a href="%s">%s</a>
+        </td>
+        <td style="white-space: nowrap" >%s</td>
+      </tr>
+            ''' % (
+        bug.weburl, bug.id, bug.component, bug.component, bug.assigned_to, bug.status, bug.resolution, bug.weburl,
+        bug.summary, bug.last_change_time)
+    emailContent = emailContent + '''
+        </tbody>
+        </table>
+    '''
+
+
+if len(newBugs) > 0:
+#     emailContent = emailContent + '''
+#     <h2>新增bug:</h2>
+#     <table border="1" cellspacing="0" cellpadding="2"  width="100%">
+#     <tbody>
+#     <tr>
+#       <th colspan="1" >ID</th>
+#       <th colspan="1">Product</th>
+#       <th colspan="1">Comp</th>
+#       <th colspan="1">Assignee</th>
+#       <th colspan="1">Status</th>
+#       <th colspan="1">Resolution</th>
+#       <th colspan="1">Summary</th>
+#       <th colspan="1">Changed</th>
+#     </tr>
+#     '''
+#     for bug in newBugs:
+#         emailContent = emailContent + '''
+#     <tr>
+#     <td>
+#       <a href="%s">%s</a>
+#     </td>
+#     <td style="white-space: nowrap">
+#         <span>%s</span>
+#     </td>
+#     <td style="white-space: nowrap" >
+#         <span>%s</span>
+#     </td>
+#     <td style="white-space: nowrap" >
+#         <span>%s</span>
+#     </td>
+#     <td style="white-space: nowrap">
+#         <span title="RESOLVED">%s</span>
+#     </td>
+#     <td style="white-space: nowrap" >
+#         <span title="FIXED">%s</span>
+#     </td>
+#     <td>
+#         <a href="%s">%s</a>
+#     </td>
+#     <td style="white-space: nowrap" >%s</td>
+#   </tr>
+#         '''% (bug.weburl, bug.id, bug.component, bug.component, bug.assigned_to, bug.status, bug.resolution, bug.weburl, bug.summary, bug.last_change_time)
+#     emailContent = emailContent + '''
+#     </tbody>
+#     </table>
+# '''
+    emailContent = emailContent + '''
+    <h2>新增bugs：</h2>
+    '''
+    add_buginfo_to_email(newBugs)
+
+if len(resolvedBugs) > 0:
+#     emailContent = emailContent + '''
+#     <h2>待验证bug:</h2>
+#     <table border="1" cellspacing="0" cellpadding="2"  width="100%">
+#     <tbody>
+#     <tr>
+#       <th colspan="1" >ID</th>
+#       <th colspan="1">Product</th>
+#       <th colspan="1">Comp</th>
+#       <th colspan="1">Assignee</th>
+#       <th colspan="1">Status</th>
+#       <th colspan="1">Resolution</th>
+#       <th colspan="1">Summary</th>
+#       <th colspan="1">Changed</th>
+#     </tr>
+#     '''
+#     for bug in resolvedBugs:
+#         emailContent = emailContent + '''
+#     <tr>
+#     <td>
+#       <a href="%s">%s</a>
+#     </td>
+#     <td style="white-space: nowrap">
+#         <span>%s</span>
+#     </td>
+#     <td style="white-space: nowrap" >
+#         <span>%s</span>
+#     </td>
+#     <td style="white-space: nowrap" >
+#         <span>%s</span>
+#     </td>
+#     <td style="white-space: nowrap">
+#         <span title="RESOLVED">%s</span>
+#     </td>
+#     <td style="white-space: nowrap" >
+#         <span title="FIXED">%s</span>
+#     </td>
+#     <td>
+#         <a href="%s">%s</a>
+#     </td>
+#     <td style="white-space: nowrap" >%s</td>
+#   </tr>
+#         '''% (bug.weburl, bug.id, bug.component, bug.component, bug.assigned_to, bug.status, bug.resolution, bug.weburl, bug.summary, bug.last_change_time)
+#     emailContent = emailContent + '''
+#     </tbody>
+#     </table>
+# '''
+    emailContent = emailContent + '''
+    <h2>待验证bugs：</h2>
+    '''
+    add_buginfo_to_email(resolvedBugs)
+
+print('Write buginfo to html...')
+htmlfile = open(targetFilename.replace('xlsx', 'html'), 'w')
+htmlfile.write(emailContent)
+htmlfile.close()
+print('Write buginfo Done')
+
 part = MIMEText(emailContent, 'html', 'utf-8')
 msg.attach(part)
 
@@ -161,4 +325,7 @@ part = MIMEApplication(open(targetFilename, 'rb').read())
 part.add_header('Content-Disposition', 'attachment', filename=os.path.basename(targetFilename))
 msg.attach(part)
 
-sendreport.send_email(EMAIL_USER, ','.join([EMAIL_TO, EMAIL_CC]), msg)
+if input("From %s to %s , cc %s\nInput 'Y' to  send email"  % (EMAIL_USER, EMAIL_TO, EMAIL_CC)) != "Y":
+    sys.exit(0)
+else:
+    sendreport.send_email(EMAIL_USER, ','.join([EMAIL_TO, EMAIL_CC]), msg)
