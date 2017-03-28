@@ -8,8 +8,8 @@ from email.mime.application import MIMEApplication
 
 _user = "laihouxin@ghostcloud.cn"
 _pwd = "lhx2900849"
-_to = "laihouxin@ghostcloud.cn"
-_cc = "laihouxin@ghostcloud.cn"
+_to = "qiaorong@ghostcloud.cn"
+_cc = "all-dev@ghostcloud.cn"
 _report_path = r'F:\bugs\reports'
 
 def send_email(sender, receiver, msg):

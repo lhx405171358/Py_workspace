@@ -10,8 +10,8 @@ from email.mime.application import MIMEApplication
 
 BUGZILLA_URL = "http://192.168.9.11"
 EMAIL_USER = "laihouxin@ghostcloud.cn"
-EMAIL_TO = "laihouxin@ghostcloud.cn"
-EMAIL_CC = "laihouxin@ghostcloud.cn"
+EMAIL_TO = "qiaorong@ghostcloud.cn"
+EMAIL_CC = "all-dev@ghostcloud.cn"
 REPORT_PATH = r"F:\bugs\reports"
 
 ONEDAYSECONDS = 3600*24
@@ -160,7 +160,7 @@ def add_buginfo_to_email(bugs):
     emailContent +=   '''
         <table border="1" cellspacing="0" cellpadding="2"  width="100%">
         <tbody>
-        <tr>
+        <tr bgcolor="#a6a6a6">
           <th colspan="1" >ID</th>
           <th colspan="1">Product</th>
           <th colspan="1">Comp</th>
