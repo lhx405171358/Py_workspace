@@ -1,11 +1,12 @@
 .gitignore
 .idea/
 __pycache__/
-debuggame.py
-emailtest.py
+demo/debuggame.py
+demo/emailtest.py
 pyscript/mcb.bat
 pyscript/pw.bat
 test.html
 *test*.py
-GithubMarkdownCSS.css
-mth.py
+demo/GithubMarkdownCSS.css
+demo/mth.py
+demo/*
