@@ -6,10 +6,10 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 
-_user = "laihouxin@ghostcloud.cn"
-_pwd = "lhx2900849"
-_to = "qiaorong@ghostcloud.cn"
-_cc = "all-dev@ghostcloud.cn"
+_user = "xx@xxx.cn"
+_pwd = "xxxxxx"
+_to = "xxx@xxx.cn"
+_cc = "xxxx@xxxxx.cn"
 _report_path = r'F:\bugs\reports'
 
 def send_email(sender, receiver, msg):
