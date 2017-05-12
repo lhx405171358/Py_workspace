@@ -8,9 +8,9 @@ from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 
 
-EMAIL_USER = "laihouxin@ghostcloud.cn"
-EMAIL_TO = "qiaorong@ghostcloud.cn"
-EMAIL_CC = "all-dev@ghostcloud.cn"
+EMAIL_USER = "xxx@xxx.cn"
+EMAIL_TO = "xxx@xxx.cn"
+EMAIL_CC = "xxx@xxx.cn"
 REPORT_PATH = r"F:\bugs\reports"
 BUGZILLA_URL = 'http://192.168.9.11/'
 
