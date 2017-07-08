@@ -6,15 +6,16 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 
-_user = "laihouxin@ghostcloud.cn"
-_pwd = "lhx2900849"
-_to = "qiaorong@ghostcloud.cn"
-_cc = "all-dev@ghostcloud.cn"
-_report_path = r'F:\bugs\reports'
+USER = "laihouxin@camera360.com"
+PWD = "Lhx2900849"
+TO = "laihouxin@camera360.com"
+CC = "laihouxin@camera360.com"
+REPORT_PATH = r'D:\tester\reports'
+SMTP_SERVER = 'smtp.exmail.qq.com'
 
 def send_email(sender, receiver, msg):
-    s = smtplib.SMTP("smtp.ym.163.com", 25, timeout=30)  # 连接smtp邮件服务器,端口默认是25
-    s.login(_user, _pwd)  # 登陆服务器
+    s = smtplib.SMTP(SMTP_SERVER, 25, timeout=30)  # 连接smtp邮件服务器,端口默认是25
+    s.login(USER, PWD)  # 登陆服务器
     s.sendmail(sender, receiver.split(","), msg.as_string())  # 发送邮件
     print('Send email done!')
     s.close()
@@ -28,7 +29,7 @@ def new_report(reportpath):
     return report_file
 
 if __name__ =='__main__':
-    newReport = new_report(_report_path)
+    newReport = new_report(REPORT_PATH)
     wb = openpyxl.load_workbook(newReport)
     ws = wb.get_sheet_by_name("Summary")
     date = ws['b2'].value
@@ -43,9 +44,9 @@ if __name__ =='__main__':
 
     msg = MIMEMultipart()
     msg["Subject"] = date + " Bug report"
-    msg["From"] = _user
-    msg["To"] = _to
-    msg["Cc"] = _cc
+    msg["From"] = USER
+    msg["To"] = TO
+    msg["Cc"] = CC
 
 
     # ---这是文字部分---
@@ -65,4 +66,4 @@ if __name__ =='__main__':
     print("From [%s] to [%s], cc [%s]" % (msg["From"], msg["To"], msg["Cc"]))
     if input("Input 'Y' to  send email") != "Y":
         sys.exit(0)
-    send_email(_user, ','.join([_to, _cc]), msg)
+    send_email(USER, ','.join([TO, CC]), msg)

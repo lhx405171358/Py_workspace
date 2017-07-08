@@ -11,7 +11,7 @@ from email.mime.application import MIMEApplication
 EMAIL_USER = "laihouxin@ghostcloud.cn"
 EMAIL_TO = "qiaorong@ghostcloud.cn"
 EMAIL_CC = "all-dev@ghostcloud.cn"
-REPORT_PATH = r"F:\bugs\reports"
+REPORT_PATH = r"D:\tester\reports"
 BUGZILLA_URL = 'http://192.168.9.11/'
 
 ONEDAYSECONDS = 3600*24

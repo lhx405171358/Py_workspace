@@ -1,2 +1,2 @@
-@py.exe -3 E:\Py_workspace\renamefile.py %*
+@py.exe -3 D:\pyworkspace\Py_workspace\renamefile.py %*
 @pause

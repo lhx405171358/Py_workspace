@@ -12,7 +12,7 @@ BUGZILLA_URL = "http://192.168.9.11"
 EMAIL_USER = "laihouxin@ghostcloud.cn"
 EMAIL_TO = "qiaorong@ghostcloud.cn"
 EMAIL_CC = "all-dev@ghostcloud.cn"
-REPORT_PATH = r"F:\bugs\reports"
+REPORT_PATH = r"D:\tester\reports"
 
 ONEDAYSECONDS = 3600*24
 
