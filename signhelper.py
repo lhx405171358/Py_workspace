@@ -2,17 +2,18 @@
 # coding: UTF-8
 
 import hashlib
-import pyperclip
 import re
+import os
+import pyperclip
 
 LIVE_KEY = {'android': '3d5cb3286b2543822861ef1cab99f223',
                 'ios': '5546722976dd89b6ec9cad5a17737562'}
 
 def sign():
     params = pyperclip.paste()
-    params = re.sub("\t(false\ttrue|true\ttrue|true\tfalse|false\tfalse)(?=\r\n|$)", '', params)
+    params = re.sub("\t(false\ttrue|true\ttrue|true\tfalse|false\tfalse)(?={sep}|$)".format(sep=os.linesep), '', params)
     params = params.replace('\t', '=')
-    params_list = params.split('\r\n')
+    params_list = params.split(os.linesep)
     params_list.sort()
     params_str = ''.join(params_list)
 
@@ -41,10 +42,22 @@ def pingguoMD5(origin, key='PINGUOSOFT'):
 
 
 if __name__ == "__main__":
-    #从粘贴板获得参数并处理
-    params_str = sign()
-    print("parrms string:\n" + params_str)
-    #md5 加密
-    sign_str = pingguoMD5(params_str, key=LIVE_KEY['android'])
-    print("sign string:\n" + sign_str)
-    pyperclip.copy(sign_str)
+    while True:
+        # 从粘贴板获得参数并处理
+        params_str = sign()
+        print("[parrms string]:\n" + params_str)
+        # md5 加密
+        selection = input("[select]: 1.Android 2.ios ")
+        if  selection == '1':
+            sign_key = LIVE_KEY['android']
+        elif selection == '2':
+            sign_key = LIVE_KEY['ios']
+        else:
+            print("no such options!")
+            continue
+        sign_str = pingguoMD5(params_str, key=sign_key)
+        print("[sign string]:\n" + sign_str)
+        pyperclip.copy(sign_str)
+        if input("Go on？Y/n ") != 'Y':
+            break
+

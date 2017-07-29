@@ -56,7 +56,7 @@ def get_bug_summary():
     # 四种搜索bug URL,对应 总BUG数	未修复BUG	今日修复BUG	新增BUG
     total_url = "{url}report.cgi?x_axis_field=bug_status&y_axis_field=bug_severity&product={product}&version={version}&chfield=[Bug+creation]&chfieldfrom={datefrom}&chfieldto={dateto}&j_top=AND&format=table&action=wrap".format(
         url=BUGZILLA_URL, product=PRODUCT, version=VERSION, datefrom='', dateto='')
-    open_url = "{url}report.cgi?x_axis_field=bug_status&y_axis_field=bug_severity&product={product}&version={version}&chfield=[Bug+creation]&chfieldfrom={datefrom}&chfieldto={dateto}&j_top=AND&format=table&action=wrap&bug_status=NEW&bug_status=RE-OPEN".format(
+    open_url = "{url}report.cgi?x_axis_field=bug_status&y_axis_field=bug_severity&product={product}&version={version}&chfield=[Bug+creation]&chfieldfrom={datefrom}&chfieldto={dateto}&j_top=AND&format=table&action=wrap&bug_status=NEW&bug_status=RE-OPEN&bug_status=IN_PROGRESS".format(
         url=BUGZILLA_URL, product=PRODUCT, version=VERSION, datefrom='', dateto='')
     today_resolved_url = "{url}report.cgi?x_axis_field=bug_status&y_axis_field=bug_severity&product={product}&version={version}&chfield=resolution&chfieldfrom={datefrom}&chfieldto={dateto}&j_top=AND&format=table&action=wrap&resolution=FIXED&resolution=WONTFIX&resolution=DUPLICATE".format(
         url=BUGZILLA_URL, product=PRODUCT, version=VERSION, datefrom=DATE_FROM, dateto=DATE_TO)
@@ -197,6 +197,7 @@ def construct_email_content(bug_info_list, module_bug_list, A_bug_list,name_list
            bug_info_list[0]['D'], bug_info_list[1]['D'], bug_info_list[2]['D'], bug_info_list[3]['D'],
            bug_info_list[0]['Enh'], bug_info_list[1]['Enh'], bug_info_list[2]['Enh'], bug_info_list[3]['Enh'],
            bug_info_list[0]['Total'], bug_info_list[1]['Total'], bug_info_list[2]['Total'], bug_info_list[3]['Total'])
+
 
     # 模块bug部分
     module_bug_summary = '''
