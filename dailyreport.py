@@ -118,7 +118,7 @@ def get_everyone_bug_summary():
 
 # 获取A级Bug概况
 def get_A_bug_summary():
-    A_bug_url = "{url}buglist.cgi?bug_severity=A&bug_status=NEW&bug_status=RE-OPEN&version={version}&product={product}".format(
+    A_bug_url = "{url}buglist.cgi?bug_severity=A&bug_status=NEW&bug_status=RE-OPEN&bug_status=IN_PROGRESS&version={version}&product={product}".format(
         url=BUGZILLA_URL, product=PRODUCT, version=VERSION)
     #print(A_bug_url)
     res = requests.post(A_bug_url, data={'Bugzilla_login': BUGZILLA_USER, 'Bugzilla_password': BUGZILLA_PASSWORD})
