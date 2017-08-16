@@ -11,7 +11,7 @@ URL_LIST = ("https://toolchain.camera360.com/apollo/getModuleDetail?module=Camer
             "https://toolchain.camera360.com/apollo/getModuleDetail?module=Camera360_Live")
 
 COOKIES = dict(c360_oa_user_info="MmlNRGFrcWxMVXNkTzdDZzFzbjU1eVV4LzFBa2VTOUJoWjB2Y2xkZUx4MzIzMWtaamt0SUVTTGVhcXdXMU5oZkZFUHVpTlRPdDd5cURHMGhwUEdpZ3UyM20xNG9NSWNLZVBNZmhnbVFqcW54blF4Q3M0QkVOWHBkRHllUmhNeVIxL1JYYVdPenlTY09vdGxZQitlVm1hOVpsRnQ5Ukp1MmxiTTFpKzlkSnV6aVJ0TndIcTVhVVE9PQ%3D%3D")
-SAVE_PATH = r"D:\tester\camera360\apk"
+SAVE_PATH = r"D:\tester\camera360\apk\camera360"
 
 
 def get_save_path():
@@ -54,10 +54,10 @@ def download_package(url, path):
     print("[package log]:")
     for log in pkgLogs:
         print(log)
-    print("[save path]:" + SAVE_PATH)
+    print("[save path]:" + path)
     if input("download?(Y/n)") == 'Y':
         pkgName = pkgUrl.split("/")[-2] + "-" + pkgUrl.split("/")[-1]
-        pkgPath = os.path.join(SAVE_PATH, pkgName)
+        pkgPath = os.path.join(path, pkgName)
         print("Downloading... ")
         #下载并显示进度条
         with closing(requests.get(pkgUrl, stream=True)) as response:
