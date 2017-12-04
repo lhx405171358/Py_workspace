@@ -4,7 +4,7 @@ print("Current work dir is", os.getcwd())
 if len(sys.argv) == 2:
     workdir = sys.argv[1]
 else:
-    workdir = r'F:\bugs\screenshot'
+    workdir = r'D:\tester\screenshots'
 print('Change dir to', workdir)
 os.chdir(workdir)
 
