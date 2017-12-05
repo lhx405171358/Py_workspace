@@ -7,6 +7,4 @@ pyscript/mcb.bat
 pyscript/pw.bat
 test.html
 *test*.py
-demo/GithubMarkdownCSS.css
-demo/mth.py
 demo/*

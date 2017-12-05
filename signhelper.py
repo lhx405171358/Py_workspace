@@ -5,10 +5,11 @@ import hashlib
 import re
 import os
 import pyperclip
-
-LIVE_KEY = {'android': '3d5cb3286b2543822861ef1cab99f223',
+import logging
+logging.basicConfig(level=logging.CRITICAL, format='%(asctime)s - %(levelname)s:%(message)s')
+LIVE_KEY = {'android': 'c893aff538416202d9a1',
                 'ios': '5546722976dd89b6ec9cad5a17737562'}
-
+# android： c893aff538416202d9a1    3d5cb3286b2543822861ef1cab99f223
 def sign():
     params = pyperclip.paste()
     params = re.sub("\t(false\ttrue|true\ttrue|true\tfalse|false\tfalse)(?={sep}|$)".format(sep=os.linesep), '', params)
@@ -19,9 +20,15 @@ def sign():
 
     return params_str
 
-
+# 例子：
+# origin：appName=Camera360language=zh_cnliveId=596754a73f1f6628510147e5platform=androiduserId=041ac653f1cb8c2d076fc99b
+# key: 'android': '3d5cb3286b2543822861ef1cab99f223',
+#      'ios': '5546722976dd89b6ec9cad5a17737562'
+# 返回：'android':'8d1ed458e8d8dc288bd813bb7802d99c'
+#       'ios': '8b4fd50dbdd9dc298a8c45ea74088398'
 def pingguoMD5(origin, key='PINGUOSOFT'):
     key_len = len(key)
+    logging.debug("origin:"+origin)
     md5 = hashlib.md5(origin.encode('utf-8')).hexdigest()
     len_md5 = len(md5)//2
     out_string = ''
@@ -37,7 +44,7 @@ def pingguoMD5(origin, key='PINGUOSOFT'):
             else:
                 ch = 0
         ch = "{:02x}".format(ch)    #10转16
-        out_string = out_string + ch
+        out_string += ch
     return out_string
 
 
@@ -48,7 +55,7 @@ if __name__ == "__main__":
         print("[parrms string]:\n" + params_str)
         # md5 加密
         selection = input("[select]: 1.Android 2.ios ")
-        if  selection == '1':
+        if selection == '1':
             sign_key = LIVE_KEY['android']
         elif selection == '2':
             sign_key = LIVE_KEY['ios']

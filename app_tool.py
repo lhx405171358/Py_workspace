@@ -5,7 +5,7 @@ import os
 import subprocess
 import platform
 
-APP_PATH = r"D:\tester\camera360\apk\test_apk"
+APP_PATH = r"D:\tester\camera360\apk\camera360"
 APP_PACKAGE = "vStudio.Android.Camera360"
 
 FONT_BULE = "\033[36m"
@@ -59,12 +59,22 @@ def execute_selection(selection):
         print("get package name...")
         os.system("adb shell dumpsys window w | findstr \/ | findstr name=")
         print("")
+    elif selection == "6":
+        print("get system version...")
+        os.system("adb shell getprop ro.build.version.release")
+        print("")
 if __name__ == "__main__":
     is_quit = False
     while not is_quit:
         set_color()
         os.system("cls")
-        selection = input("Input your selection:\n1.Install latest app\n2.remove app\n3.clear app data\n4.stop app\n5.get package name\n")
+        selection = input("Input your selection:\n"
+                          "1.Install latest app\n"
+                          "2.remove app\n"
+                          "3.clear app data\n"
+                          "4.stop app\n"
+                          "5.get package name\n"
+                          "6.get system version\n")
         unset_color()
         execute_selection(selection)
         if input("go on(input ‘n’ to quit)? ") == "n":

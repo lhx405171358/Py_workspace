@@ -17,7 +17,7 @@ BUGZILLA_USER = "laihouxin@camera360.com"
 BUGZILLA_PASSWORD = "lhx2900849"
 
 PRODUCT = "Camera360 for Android 8.X"
-VERSION = "8.8.0"
+VERSION = "8.9.0"
 BUG_TYPE = ('A', 'B', 'C', 'D', 'Enh', 'Total')
 
 # 设置默认时间区间为今日
