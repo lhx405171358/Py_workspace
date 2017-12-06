@@ -16,6 +16,8 @@ def create_image(path, width, height):
         r, g, b, a = resize_img.split()  # 利用split和merge将通道从四个转换为三个
         jpg_img = Image.merge("RGB", (r, g, b))
         jpg_img.save(path+"/jpg_{width}x{height}.jpg".format(width=width, height=height))
+    else:
+        resize_img.save(path + "/jpg_{width}x{height}.jpg".format(width=width, height=height))
     #动图
     motion_img = []
     motion_img.append(resize_img)
