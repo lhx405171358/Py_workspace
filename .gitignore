@@ -3,8 +3,7 @@
 __pycache__/
 demo/debuggame.py
 demo/emailtest.py
-pyscript/mcb.bat
-pyscript/pw.bat
+pyscript/*
 test.html
 *test*.py
 demo/*
