@@ -5,7 +5,7 @@ import os
 from PIL import Image
 
 DEFAULT_ORIGIN_IMAGE = r"F:\github\Py_workspace\img\origin.png"
-
+SUPPORT_SUFFIX = ("png", "gif", "webp", "jpg")
 
 class ImageMaker(object):
 
@@ -35,7 +35,7 @@ class ImageMaker(object):
     def create_image(self, width, height):
 
         resize_img = Image.open(self.origin_img).resize((width, height), Image.ANTIALIAS)
-        for suffix in "png", "gif", "webp", "jpg":
+        for suffix in SUPPORT_SUFFIX:
             if suffix == "webp":
                 resize_img.save(self.path+"/{name}_{suffix}_{width}x{height}.{suffix}".format(name=self.name,
                                                                                               width=width,
