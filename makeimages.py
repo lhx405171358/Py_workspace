@@ -4,7 +4,7 @@
 import os
 from PIL import Image
 
-DEFAULT_ORIGIN_IMAGE = r"F:\github\Py_workspace\img\origin.png"
+DEFAULT_ORIGIN_IMAGE = r"D:\tester\camera360\test_resource\测试用图\makeimages\origin.png"
 SUPPORT_SUFFIX = ("png", "gif", "webp", "jpg")
 
 class ImageMaker(object):
@@ -31,9 +31,7 @@ class ImageMaker(object):
             print(self.origin_img + " is not a file")
             return False
 
-
     def create_image(self, width, height):
-
         resize_img = Image.open(self.origin_img).resize((width, height), Image.ANTIALIAS)
         for suffix in SUPPORT_SUFFIX:
             if suffix == "webp":
@@ -66,8 +64,7 @@ class ImageMaker(object):
                         save_all=True,
                         append_images=motion_img,
                         loop=0,
-                        transparency=0,
-                        disposal=2)
+                        transparency=0)
         print(self.path+"/{name}_motion_{width}x{height}.gif".format(name=self.name, width=width, height=height))
 
 

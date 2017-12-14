@@ -4,9 +4,15 @@
 import os
 import subprocess
 import platform
+import pyperclip
+import time
+import logging
+import bugzilla
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 APP_PATH = r"D:\tester\camera360\apk\camera360"
 APP_PACKAGE = "vStudio.Android.Camera360"
+LOG_PATH = r"/sdcard/Android/data/vStudio.Android.Camera360/files"
 
 FONT_BULE = "\033[36m"
 FONT_GREEN = "\033[32m"
@@ -63,6 +69,55 @@ def execute_selection(selection):
         print("get system version...")
         os.system("adb shell getprop ro.build.version.release")
         print("")
+    elif selection == "7":
+        print("get device info...")
+        device_man = ""
+        device_model = ""
+        andr_version = ""
+        try:
+            device_man = str(subprocess.check_output("adb shell getprop  ro.product.manufacturer", shell=True),
+                             encoding='gbk').replace("\r", "").replace("\n", '')
+            device_model = str(subprocess.check_output("adb shell getprop  ro.product.model",shell=True), encoding='gbk').replace("\r", "").replace("\n", '')
+            andr_version = str(subprocess.check_output("adb shell getprop ro.build.version.release",shell=True), encoding='gbk').replace("\r", "").replace("\n", '')
+        except Exception as err:
+            logging.error(err)
+            print("None")
+        print(device_man, device_model, andr_version)
+        today = time.strftime("%Y-%m-%d", time.localtime())
+        bug_info = '''【版本信息】
+{device_man} {device_model}  android {andr_version}
+
+【预设条件】
+#
+
+【操作步骤】
+1.
+
+【预期结果】
+
+
+【实际结果】
+
+
+【发生概率】
+100%
+
+【发生日期】
+{today}
+'''.format(device_man=device_man, device_model=device_model, andr_version=andr_version, today=today)
+
+        pyperclip.copy(bug_info)
+        print("Done")
+    elif selection == "8":
+        print("get crash log...")
+        file_list = None
+        try:
+            file_list = str(subprocess.check_output('adb shell ls {err_path} | find ".err"'.format(err_path=LOG_PATH), shell=True), encoding='gbk').replace("\r", "").rstrip("\n").split("\n")
+        except Exception as err:
+            logging.error(err)
+        if file_list:
+            for index, log_file in enumerate(file_list):
+                print(str(index)+". "+log_file)
 if __name__ == "__main__":
     is_quit = False
     while not is_quit:
@@ -74,7 +129,9 @@ if __name__ == "__main__":
                           "3.clear app data\n"
                           "4.stop app\n"
                           "5.get package name\n"
-                          "6.get system version\n")
+                          "6.get system version\n"
+                          "7.copy bug info\n"
+                          "8.get crash log\n")
         unset_color()
         execute_selection(selection)
         if input("go on(input ‘n’ to quit)? ") == "n":
